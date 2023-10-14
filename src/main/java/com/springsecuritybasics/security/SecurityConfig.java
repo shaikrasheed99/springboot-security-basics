@@ -36,6 +36,7 @@ public class SecurityConfig {
                 authorize.requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .requestMatchers(mvcRequestMatcher.pattern("/signup")).permitAll()
                         .requestMatchers(mvcRequestMatcher.pattern("/users")).hasRole("admin")
+                        .requestMatchers(mvcRequestMatcher.pattern("/users/{username}")).hasAnyRole("admin", "user")
                         .anyRequest().authenticated()
         ).httpBasic(Customizer.withDefaults());
 

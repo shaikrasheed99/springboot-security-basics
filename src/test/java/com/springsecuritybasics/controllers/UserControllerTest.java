@@ -181,6 +181,7 @@ public class UserControllerTest {
                                 SecurityMockMvcRequestPostProcessors
                                         .user(signupRequest.username())
                                         .password(signupRequest.password())
+                                        .roles(signupRequest.role())
                         )
         );
 
@@ -201,7 +202,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void shouldNotBeAbleToReturnUserByUsernameForUnauthorisedUsers() throws Exception {
+    void shouldNotBeAbleToReturnUserByUsernameForUnauthenticatedUsers() throws Exception {
         ResultActions result = mockMvc.perform(
                 MockMvcRequestBuilders
                         .get("/users/{username}", signupRequest.username())
@@ -216,6 +217,27 @@ public class UserControllerTest {
     }
 
     @Test
+    void shouldNotBeAbleToReturnUserByUsernameForUnauthorisedUsers() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users/{username}", signupRequest.username())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors
+                                        .user(signupRequest.username())
+                                        .password(signupRequest.password())
+                                        .roles("unauthorisedRoleName")
+                        )
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isForbidden()
+        );
+    }
+
+    @Test
     void shouldNotBeAbleToReturnUserByAnotherUsername() throws Exception {
         ResultActions result = mockMvc.perform(
                 MockMvcRequestBuilders
@@ -225,6 +247,7 @@ public class UserControllerTest {
                                 SecurityMockMvcRequestPostProcessors
                                         .user(signupRequest.username())
                                         .password(signupRequest.password())
+                                        .roles(signupRequest.role())
                         )
         );
 
