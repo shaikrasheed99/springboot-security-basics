@@ -3,4 +3,6 @@ fileignoreconfig:
   checksum: f21bd0d89f200dab72aeda70e3bf1191d869c95c7efece44b038d4847a8d1d00
 - filename: src/main/java/com/springsecuritybasics/models/User.java
   checksum: 132aa3ec9e32300dd751924b5a097e210cc48972d3f1cfc64fdbd27e48287eae
+- filename: src/main/java/com/springsecuritybasics/security/UserDetailsImpl.java
+  checksum: b2b602bc1b23b32620a8a296916479235cef857372718ddcf42d526d51c29e50
 version: ""
