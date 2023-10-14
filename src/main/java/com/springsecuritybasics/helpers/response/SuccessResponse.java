@@ -1,4 +1,4 @@
-package com.springsecuritybasics.helpers;
+package com.springsecuritybasics.helpers.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
