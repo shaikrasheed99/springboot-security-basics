@@ -2,6 +2,7 @@ package com.springsecuritybasics.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springsecuritybasics.helpers.requests.SignupRequest;
+import com.springsecuritybasics.models.User;
 import com.springsecuritybasics.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,15 @@ public class UserControllerTest {
                 "testFirstname",
                 "testLastname"
         );
+
+        User user = new User()
+                .username(signupRequest.username())
+                .password(signupRequest.password())
+                .role(signupRequest.role())
+                .firstname(signupRequest.firstname())
+                .lastname(signupRequest.lastname());
+
+        userRepository.save(user);
     }
 
     @AfterEach
@@ -158,6 +168,76 @@ public class UserControllerTest {
                 MockMvcResultMatchers
                         .status()
                         .isForbidden()
+        );
+    }
+
+    @Test
+    void shouldBeAbleToReturnUserByUsername() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users/{username}", signupRequest.username())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors
+                                        .user(signupRequest.username())
+                                        .password(signupRequest.password())
+                        )
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isOk()
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.code").value("OK")
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.status").value("success")
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.data.username").value(signupRequest.username())
+        );
+    }
+
+    @Test
+    void shouldNotBeAbleToReturnUserByUsernameForUnauthorisedUsers() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users/{username}", signupRequest.username())
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isUnauthorized()
+        );
+    }
+
+    @Test
+    void shouldNotBeAbleToReturnUserByAnotherUsername() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users/{username}", "testUsername2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors
+                                        .user(signupRequest.username())
+                                        .password(signupRequest.password())
+                        )
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isForbidden()
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.code").value("FORBIDDEN")
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.status").value("error")
         );
     }
 }

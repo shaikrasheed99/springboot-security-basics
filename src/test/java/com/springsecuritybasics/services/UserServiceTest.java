@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -78,5 +79,16 @@ class UserServiceTest {
         assertEquals(users.get(0).username(), userList.get(0).username);
 
         verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
+    void shouldBeAbleToReturnUserByUsername() {
+        when(userRepository.findById(any(String.class))).thenReturn(Optional.ofNullable(user));
+
+        User user = userService.getUserByUsername(this.user.getUsername());
+
+        assertEquals(user.getUsername(), this.user.getUsername());
+
+        verify(userRepository, times(1)).findById(any(String.class));
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -46,5 +47,11 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return usersResponse;
+    }
+
+    public User getUserByUsername(String username) {
+        Optional<User> user = userRepository.findById(username);
+
+        return user.get();
     }
 }

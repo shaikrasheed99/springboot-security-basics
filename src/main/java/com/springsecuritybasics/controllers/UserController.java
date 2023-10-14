@@ -4,15 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springsecuritybasics.helpers.responses.SuccessResponse;
 import com.springsecuritybasics.helpers.requests.SignupRequest;
 import com.springsecuritybasics.helpers.responses.UserResponse;
+import com.springsecuritybasics.models.User;
 import com.springsecuritybasics.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,6 +62,36 @@ public class UserController {
                 .code(HttpStatus.OK)
                 .status("success")
                 .data(users)
+                .convertToJson();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/users/{username}")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username, Principal principal) throws JsonProcessingException {
+        if (!username.equals(principal.getName())) {
+            String response = new SuccessResponse()
+                    .code(HttpStatus.FORBIDDEN)
+                    .status("error")
+                    .data("Cannot access another user details")
+                    .convertToJson();
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        User user = userService.getUserByUsername(username);
+
+        UserResponse userResponse = new UserResponse(
+                user.getUsername(),
+                user.getFirstname(),
+                user.getLastname(),
+                user.getRole()
+        );
+
+        String response = new SuccessResponse()
+                .code(HttpStatus.OK)
+                .status("success")
+                .data(userResponse)
                 .convertToJson();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
