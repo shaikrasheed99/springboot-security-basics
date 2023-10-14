@@ -5,4 +5,6 @@ fileignoreconfig:
   checksum: 132aa3ec9e32300dd751924b5a097e210cc48972d3f1cfc64fdbd27e48287eae
 - filename: src/main/java/com/springsecuritybasics/security/UserDetailsImpl.java
   checksum: b2b602bc1b23b32620a8a296916479235cef857372718ddcf42d526d51c29e50
+- filename: README.md
+  checksum: 0739d46f7dfbec36000392d5040f273c310b29d67e2aaa2653814ad8996fc759
 version: ""
