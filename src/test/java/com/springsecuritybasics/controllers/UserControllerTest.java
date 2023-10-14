@@ -1,8 +1,8 @@
 package com.springsecuritybasics.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springsecuritybasics.repository.UserRepository;
 import com.springsecuritybasics.helpers.requests.SignupRequest;
+import com.springsecuritybasics.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class UserControllerTest {
         signupRequest = new SignupRequest(
                 "testUsername",
                 "testPassword",
-                "testRole",
+                "user",
                 "testFirstname",
                 "testLastname"
         );
@@ -52,7 +52,6 @@ public class UserControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors
                                 .user(signupRequest.username())
                                 .password(signupRequest.password())
-                                .roles(signupRequest.role())
                         )
         );
 
@@ -69,6 +68,21 @@ public class UserControllerTest {
         ).andExpect(
                 MockMvcResultMatchers
                         .jsonPath("$.data.message").value("This API is accessed by only authenticated users")
+        );
+    }
+
+    @Test
+    void shouldNotBeAbleToReturnSuccessAuthenticatedMessageForUnauthorisedUser() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/authenticated")
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isUnauthorized()
         );
     }
 
@@ -96,6 +110,54 @@ public class UserControllerTest {
         ).andExpect(
                 MockMvcResultMatchers
                         .jsonPath("$.data.message").value("user successfully signed up")
+        );
+    }
+
+    @Test
+    void shouldBeAbleToReturnAllUsersForUserWithAdminRole() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors
+                                        .user(signupRequest.username())
+                                        .password(signupRequest.password())
+                                        .roles("admin")
+                        )
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isOk()
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.code").value("OK")
+        ).andExpect(
+                MockMvcResultMatchers
+                        .jsonPath("$.status").value("success")
+        );
+    }
+
+    @Test
+    void shouldNotBeAbleToReturnAllUsersForUserWithUserRole() throws Exception {
+        ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors
+                                        .user(signupRequest.username())
+                                        .password(signupRequest.password())
+                                        .roles("user")
+                        )
+        );
+
+        result.andExpect(
+                MockMvcResultMatchers
+                        .status()
+                        .isForbidden()
         );
     }
 }
